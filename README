@@ -1,0 +1,124 @@
+SERBOI FLOREA-DAN 335CB
+
+In aceasta tema am folosit si functiile implementate deja in tema 2, pe care 
+le-am delimitat printr-un comentariu sugestiv pentru a usura parcurgerea 
+fisierului. Astfel, functiile specifice temei 3 sunt puse primele, apoi cele 
+din tema 2, si, in final, este functia main.
+
+Avem o singura sursa, main.py, pentru a rezolva cerinta data.
+Un singur modul este importat, sys, pentru a avea acces la parametri dati din 
+linia de comanda.
+
+Ca si nucleu al temei, eu intai am eliminat operatorii Kleene star consecutivi 
+si am adaugat explicit operatorul de concatenare. Apoi am parsat expresia, 
+calculand forma postfixata(eliminand, astfel, si parantezele) pe care am 
+aplicat algoritmul de transformare a unei expresii regulate intr-un automat 
+finit nedeterminist.
+
+Voi descrie in continuare functiile si clasele implementate.
+
+Functia op_prec returneaza pentru fiecare operator o valoare caracteristica 
+precedentei lor: operatorul de reuniune leaga cel mai slab; operatorul de 
+concatenare leaga mai strans decat operatorul de reuniune dar mai slab ca 
+operatorul Kleene star; Kleene star leaga cel mai strans.
+
+Functia parse_regex calculeaza forma postfixata a regex-ului, elimina 
+operatorii Kleene star consecutivi si parantezele si adauga explicit operatorul 
+de concatenare.
+
+Clasa NFA este clasa de baza pentru automat finit nedeterminist din care se vor 
+deriva clasele specifice automatelor noi calculate, folosind algoritmul de 
+transformare ER -> AFN.
+
+Clasa SymbolNFA mosteneste NFA si accepta limbajul generat de expresia formata 
+dintr-un simbol. El are o tranzitie din starea initiala in starea finala pe 
+simbol.
+
+Clasa ConcatenationNFA mosteneste NFA si accepta limbajul generat de expresia 
+formata prin concatenarea a 2 subexpresii (pentru care am construit 2 NFA-uri 
+care accepta limbajul generat de ele). Noua stare initiala va fi starea 
+initiala a primului NFA, iar noua stare finala va fi starea finala a celui 
+de-al doilea NFA. Se introduce o tranzitie noua pe epsilon din starea finala a 
+primului NFA catre starea initiala a celui de-al doilea NFA.
+
+Clasa ReunionNFA mosteneste NFA si accepta limbajul generat de expresia formata 
+prin reuniunea a 2 subexpresii (pentru care am construit 2 NFA-uri care accepta 
+limbajul generat de ele). Sunt introduse 2 noi stari, una initiala si una 
+finala. Noua stare initiala are tranzitii pe epsilon catre cele 2 stari 
+initiale. Din cele 2 stari finale exista tranzitii pe epsilon catre noua stare 
+finala.
+
+Clasa KleeneStarNFA mosteneste NFA si accepta limbajul generat de aplicarea 
+operatorului Kleene star pe o expresie pentru care am construit un NFA care 
+accepta limbajul generat de ea. Sunt introduse 2 noi stari, una initiala si una 
+finala. Atat noua stare initiala cat si starea finala a automatului au 
+tranzitii pe epsilon catre starea initiala a automatului si catre noua stare 
+finala.
+
+Functia postfix_regex_to_NFA implementeaza algoritmul de transformare ER -> 
+AFN. Astfel, parcurgem fiecare simbol din forma postfixata a regex-ului si 
+construim NFA-ul caracteristic fiecarui simbol, pe care il adaugam pe stiva.
+In cazul unei litere, vom crea 2 noi stari pentru noul automat, una find stare 
+initiala, cealalta - finala.
+In cazul operatorului de reuniune, vom crea 2 noi stari in noul automat, una 
+find stare initiala, cealalta - finala si vom scoate de pe stiva cele 2 NFA-uri 
+corespunzatoare subexpresiilor pe care se aplica operatorul.
+In cazul operatorului de concatenare, doar vom scoate de pe stiva cele 2 
+NFA-uri corespunzatoare subexpresiilor pe care se aplica operatorul.
+In cazul operatorului Kleene star, vom crea 2 noi stari in noul automat, una 
+find stare initiala, cealalta - finala si vom scoate de pe stiva NFA-ul 
+corespunzator expresiei pe care se aplica operatorul.
+Dupa ce am terminat de parcurs expresia, vom scoate de pe stiva NFA-ul ramas 
+care accepta limbajul generat de regex-ul initial si pe care il vom returna 
+impreuna cu urmatoare stare disponibila care reprezinta chiar numarul de stari 
+folosite in NFA.
+
+Functia make_initial_state_0 face ca starea 0 sa devina stare initiala in NFA. 
+Astfel, interschimbam starea initiala cu starea 0 in tranzitii.
+
+Functia write_NFA scrie NFA-ul in fisierul dat ca parametru in linia de comanda.
+
+Urmatoarele functii sunt cele implementate in tema 2.
+
+In functia read_NFA extragem informatiile legate de NFA din fisierul dat ca 
+parametru: numarul de stari, starile finale, simbolurile, multimea starilor si 
+tranzitiile NFA-ului.
+
+In functia eps_closure calculam inchiderea epsilon pentru o stare din NFA.
+
+In functia compute_composed_state concatenam o multime de stari sub forma unui 
+string, starile fiind delimitate prin '/'.
+
+In functia compute_DFA construim DFA-ul. Astfel, obtinem starile finale si 
+tranzitiile. Pasii construirii DFA-ului sunt urmatorii: 
+	- construim starea initiala a DFA-ului care reprezinta inchiderea 
+epsilon a starii initiale din NFA si o memoram ca string, concatenand starile, 
+delimitate prin '/';
+	- vom tine in memorie multimea starilor neprelucrate si a celor 
+prelucrate;
+	- vom porni de la starea initiala pe care o vom introduce in multimea 
+starilor neprelucrate;
+	- cat timp avem stari neprelucrate, extragem o stare neprelucrata. 
+Starea compusa este stare finala in DFA daca cel putin o stare continuta este 
+stare finala in NFA. In acest caz, o adaugam in multimea starilor finale. Apoi, 
+construim tranzitiile in DFA pentru acea stare si daca o stare succesor dintr-o 
+tranzitie nu se afla printre cele tratate, o adaugam in multimea celor 
+netratate.
+
+In functia write_final_states scriem in fisierul de output starile finale ale 
+DFA-ului.
+
+In functia write_transitions scirem in fisier tranzitiile DFA-ului. Aici 
+adaugam si tranzitiile pentru sink state.
+
+In functia write_DFA scriem toate informatiile cerute legate de DFA in fisierul 
+de output. Starile compuse obtinute anterior sunt mapate la intregi.
+
+In functia main extragem denumirile fisierelor date din linia de comanda, citim 
+regex-ul din fisier, pe care il parsam. Calculam NFA-ul si daca starea initiala 
+nu e 0, inlocuim starea initiala cu 0 si invers in tranzitii. Scriem NFA-ul in 
+fisierul dat ca parametru in linia de comanda. Citim numarul de stari, starile 
+finale, simbolurile, multimea starilor si tranzitiile NFA-ului din fisierul 
+unde am scris inainte. Calculam inchiderea epsilon pentru fiecare stare a 
+NFA-ului. In final, calculam DFA-ul si scriem numarul de stari, starile finale 
+si tranzitiile DFA-ului in fisierul de ouput.
