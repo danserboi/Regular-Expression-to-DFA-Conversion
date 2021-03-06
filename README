@@ -1,4 +1,5 @@
-In aceasta tema am folosit si functiile implementate deja in tema 2, pe care 
+In aceasta tema am folosit si functiile implementate deja in tema 2
+(https://github.com/danserboi/NFA-to-DFA-Subset-Construction), pe care 
 le-am delimitat printr-un comentariu sugestiv pentru a usura parcurgerea 
 fisierului. Astfel, functiile specifice temei 3 sunt puse primele, apoi cele 
 din tema 2, si, in final, este functia main.
